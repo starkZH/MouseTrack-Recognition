@@ -7,17 +7,17 @@ Through a simple way to recognize the track of mouse
 
 ## 配置文件
 >  {    "track":[<br>
-        {"trackImage":"d:/0/0.png", <br>
-        "description":"下一张", <br>
-        "function":"NEXT",<br>"scene":0,<br>"direction":[[0,1],[1,0]]}
-    ]   }
-<br>
-### 配置说明:
->* trackImage : 鼠标轨迹图片
->* description : 鼠标轨迹描述，将在程序下方提示
->* function : 要执行的功能编号
->* scene : 使用场景(暂时不用)
->* direction : 鼠标的轨迹的移动方向
+>        {"trackImage":"d:/0/0.png", <br>
+>        "description":"下一张", <br>
+>        "function":"NEXT",<br>"scene":0,<br>"direction":[[0,1],[1,0]]}
+>    ]   }
+
+### 配置说明
+> * trackImage : 鼠标轨迹图片
+> * description : 鼠标轨迹描述，将在程序下方提示
+> * function : 要执行的功能编号
+> * scene : 使用场景(暂时不用)
+> * direction : 鼠标的轨迹的移动方向
 ### 轨迹图片样例
 <img src="https://img3.doubanio.com/view/note/l/zZY5_coJMHOYyNx6x8PBlw/135224369/x56764735.jpg">
 
