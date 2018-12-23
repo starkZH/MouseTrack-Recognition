@@ -1,0 +1,12 @@
+{
+    "radius":260,
+    "track":[
+        {"trackImage":"d:/0/track/1.png","description":"刷新","function":"REFRESH","scene":0,"direction":["-1,1","1,1","1,-1"]},
+        {"trackImage":"d:/0/track/2.png","description":"下一个","function":"NEXT","scene":0,"direction":["0,-1","1,0"]},
+        {"trackImage":"d:/0/track/0.png","description":"上一个","function":"LAST","scene":0,"direction":["-1,0","0,-1"]},
+        {"trackImage":"d:/0/track/4.png","description":"向左","function":"NEXT","scene":0,"direction":["0,-1","-1,0"]},
+        {"trackImage":"d:/0/track/5.png","description":"打开","function":"ENTER","scene":0,"direction":["1,1","1,-1"]},
+        {"trackImage":"d:/0/track/3.png","description":"关闭","function":"CLOSE","scene":0,"direction":["-1,-1","-1,1"]},
+        {"trackImage":"d:/0/track/0.png","description":"切换","function":"CHANGE","scene":0,"direction":["0,1","1,0"]}
+    ]
+}
