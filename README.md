@@ -2,7 +2,7 @@
 Through a simple way to recognize the track of mouse
 <br>一种简单的鼠标轨迹识别方案
 ## 演示GIF
-<img src="https://img1.doubanio.com/view/note/raw/qq2hGSlv5IC7IWPZOLZBZg/135224369/x56765319.jpg">
+![Loading...](https://github.com/starkZH/MouseTrack-Recognition/raw/master/images/0b86u-qy73q.gif)
 
 
 ## 配置文件
