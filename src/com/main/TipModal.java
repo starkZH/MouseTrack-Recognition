@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import util.FingerPrint;
 
 public class TipModal  implements Runnable{
+	final int MAX_MISTAKE_TIMES=5;
 	int TIP_WIDTH=400,TIP_HEIGHT=200;
 	int lastX=-1,lastY=-1,startX=-1,startY=-1;
 	JLabel tip=new JLabel();
@@ -52,29 +53,44 @@ public class TipModal  implements Runnable{
 		System.out.println("offset: "+offset+"  "+cut.getWidth());
 		double max=0;
 		int max_index=-1;//图片相似度最大的轨迹索引
+		int interval=MouseTrack.INTERVAL;
 		for(int i=0;i<tracks.length();i++) {
 				JSONObject obj=tracks.getJSONObject(i);
 				JSONArray ts=obj.getJSONArray("direction");
 				int ts_i=0;
 				String[] last=null;
-				String last_dir=null,//前一次的方向
-						last_res="";//前一个两次方向比较后的结果
+				String last_dir=null,//前一次的坐标
+						last_res="";//前两个坐标比较后的结果
 				int mistake_times=0;//容错率
 				String last_mistake="";
 				for(String dir:dis) {//遍历鼠标运动方向
-				String[] ds=dir.split(",");
-				if(last_dir!=null&&ts_i<ts.length()) {
-					last=last_dir.split(",");
+				String[] ds=dir.split(",");//此次的坐标
+				if(last_dir!=null) {
+					last=last_dir.split(",");//上次的坐标
 					int lx=Integer.parseInt(last[0]),ly=Integer.parseInt(last[1]),
 							nx=Integer.parseInt(ds[0]),ny=Integer.parseInt(ds[1]);
 					int ox=nx-lx>offset?1:nx-lx<=-offset?-1:0
 							,oy=ny-ly>offset?1:ny-ly<=-offset?-1:0;
-						String dir_res=ox+","+oy;
+						String dir_res=ox+","+oy;//得到方向
+						
+						if(ts_i>=ts.length()) {//超出标准轨迹的方向数目了，允许小范围内的超出
+							if(interval--==0) {//每移动10次记录一次，不然太密集的话总是在误差范围内
+							last_res=dir_res;
+							interval=MouseTrack.INTERVAL;
+							}
+							if(!last_res.equals(dir_res)) {//瞎画的时候退出
+							ts_i=0;
+							break;
+							}
+							continue;
+						}
+						
 					if((!dir_res.equals(last_res))) {//新的运动方向
+						
 						if((dir_res).equals(ts.getString(ts_i))) {//运动方向与轨迹吻合
 						ts_i++;
 						last_res=dir_res;
-						}else if(!last_mistake.equals(dir_res)&&mistake_times++>5) {//同个错误不重复计入
+						}else if(!last_mistake.equals(dir_res)&&mistake_times++>MAX_MISTAKE_TIMES) {//同个错误不重复计入
 							last_mistake=dir_res;
 							break;
 						}
@@ -85,7 +101,7 @@ public class TipModal  implements Runnable{
 				}
 			}
 				System.out.println(i+" ) Mistake: "+mistake_times);
-				if(mistake_times>5)continue;
+				if(mistake_times>MAX_MISTAKE_TIMES)continue;
 				if(ts_i==ts.length()) {//手势运动方向吻合，判断图片相似度
 					double tmp=new FingerPrint(cut).compare(trackImages[i]);
 					if(tmp>max) {
@@ -111,48 +127,7 @@ public class TipModal  implements Runnable{
 		}
 		
 		
-		/**
-		HashMap<Integer,Double> indexs=new HashMap<Integer,Double>();
-		for(int i=0;i<trackImages.length;i++) {
-			double tmp=new FingerPrint(cut).compare(trackImages[i]);
-		//	System.out.println(i+" "+tmp);
-			if(tmp>=0.8) {
-				max=tmp;
-				indexs.put(i, tmp);
-			}
-		}
-	//	System.out.println("Map Keys: "+dis.size());
-		if(max>=0.8) {//图像相似
-			
-			JSONObject jso=null;
-			try {
-				int cx=lastX-startX,cy=lastY-startY;
-				for (Integer index  : indexs.keySet()) { 
-					boolean flag=true;
-						jso=tracks.getJSONObject(index);
-				int ox=jso.getInt("offsetX"),oy=jso.getInt("offsetY");
-						
-				if((ox==1&&cx<0)||
-						(ox==-1&&cx>0)||
-						(oy==1&&cy<0)||
-						(oy==-1&&cy>0))flag=false;
-				
-	//		System.out.println(index+" "+indexs.get(index));
-	//		tip.setVisible(flag);
-			if(flag) {
-				tip.setVisible(true);
-				tip.setIcon(new ImageIcon(drawTip(jso.getString("description"))));
-			//	break;
-			}else tip.setIcon(new ImageIcon(invalid));
-				}
-			
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			 
-		}else tip.setVisible(false);
-		**/
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

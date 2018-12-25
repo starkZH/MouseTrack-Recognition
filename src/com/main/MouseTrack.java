@@ -48,7 +48,8 @@ public class MouseTrack extends JWindow{//ÕýÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 }
  * */
 	float alpha=0.56f;
-	final int TIP_WIDTH=400,TIP_HEIGHT=200,INTERVAL=6;
+	final int TIP_WIDTH=400,TIP_HEIGHT=200;
+	static final int INTERVAL=6;
 	Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 	int width=(int)dimension.getWidth(),height=(int)dimension.getHeight(),interval=INTERVAL;
 	
