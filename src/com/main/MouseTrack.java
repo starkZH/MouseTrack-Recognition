@@ -48,17 +48,16 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 }
  * */
 	float alpha=0.56f;
-	final int TIP_WIDTH=400,TIP_HEIGHT=200;
-	static final int INTERVAL=6;
+	static final int TIP_WIDTH=400,TIP_HEIGHT=200,INTERVAL=6;
 	Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 	int width=(int)dimension.getWidth(),height=(int)dimension.getHeight(),interval=INTERVAL;
 	
 	JLabel track=new JLabel(),tip=new JLabel();
-	BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB),gray=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+	BufferedImage image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
 	BasicStroke stroke= new BasicStroke(10.0f,BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER);//»­±ÊÉèÖÃ
 	int lastX=-1,lastY=-1,startX=-1,startY=-1;
 	int minx=0,maxx=0,miny=0,maxy=0;
-	JSONArray tracks=null;
+	public JSONArray tracks=null;
 	byte[][] trackImages=null;
 	static TipModal tm=new TipModal();
 	public MouseTrack(JSONArray tracks) {
@@ -94,6 +93,7 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 				if(y<miny)miny=y;
 				if(lastX<0) {
 					startX=lastX=x;startY=lastY=y;
+					tm.dis.add(x+","+y);
 				}
 				drawTrack(x,y);
 				track.setIcon(new ImageIcon(image));
@@ -110,6 +110,8 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 					
 					interval=INTERVAL;
 				}
+				//²âÊÔ´úÂë
+				if(e.getX()<20) System.exit(0);
 			}
 
 			@Override
@@ -148,18 +150,11 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 			}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				if(e.getButton()==e.BUTTON3)System.exit(0);
+			public void mouseReleased(MouseEvent arg0) {
 				initState();
 				hideFrame();
+				tm.tip.setVisible(false);
 				Function.exec(tm.func);
-				try {
-					Thread.sleep(1500);
-				} catch (InterruptedException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				showFrame();
 			}
 			
 		});
@@ -189,7 +184,7 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 	
 	public static void main(String[] args) {
 		try {
-			MouseTrack mt=new MouseTrack(MouseTrack.readProperties(System.getProperty(("user.dir"))+"/src/config.json").getJSONArray("track"));
+			new MouseTrack(readProperties((System.getProperty("user.dir")+"/config.json")).getJSONArray("track"));
 			
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -201,7 +196,7 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 		try {
 		res=new BufferedImage(maxx-minx,maxy-miny,BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d=res.createGraphics();
-		g2d.drawImage(gray, -minx, -miny , width, height, null);
+		g2d.drawImage(image, -minx, -miny , width, height, null);
 		}catch(Exception e) {
 			
 		}
@@ -216,20 +211,16 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 		g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
 		g2d.setStroke(stroke);
 		g2d.drawLine(lastX, lastY, x, y);
-		g2d=gray.createGraphics();
-		g2d.setStroke(stroke);
-		g2d.setColor(Color.BLACK);
-		g2d.drawLine(lastX, lastY, x, y);
 		g2d.dispose();
 		
 	}
 	
 	void newImage() {
 		 image=new BufferedImage(width,height,BufferedImage.TYPE_INT_ARGB);
-		 gray=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
-		 Graphics2D g2d=gray.createGraphics();
-		 g2d.setColor(Color.white);
-		 g2d.fillRect(0, 0, width, height);
+//		 gray=new BufferedImage(width,height,BufferedImage.TYPE_INT_RGB);
+//		 Graphics2D g2d=gray.createGraphics();
+//		 g2d.setColor(Color.white);
+//		 g2d.fillRect(0, 0, width, height);
 		 track.setIcon(new ImageIcon(image));
 	}
 	
@@ -238,7 +229,11 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 		for(int i=0;i<tracks.length();i++) {
 			try {
 				JSONObject obj=tracks.getJSONObject(i);
-				trackImages[i]=FingerPrint.hashValue(ImageIO.read(new File(obj.getString("trackImage"))));
+			//	System.out.println(obj.getString("trackImage"));
+				String  fp=obj.getString("trackImage");
+				if(fp.indexOf("/")==0)
+					fp=System.getProperty("user.dir")+fp;
+				trackImages[i]=FingerPrint.hashValue(ImageIO.read(new File(fp)));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -257,6 +252,8 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "ÕÒ²»µ½ÅäÖÃÎÄ¼ş","´íÎó",JOptionPane.ERROR_MESSAGE);
+			
 		}
 		
 		return res;

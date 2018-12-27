@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import util.FingerPrint;
 
 public class TipModal  implements Runnable{
-	final int MAX_MISTAKE_TIMES=5;
+	final int MAX_MISTAKE_TIMES=7;
 	int TIP_WIDTH=400,TIP_HEIGHT=200;
 	int lastX=-1,lastY=-1,startX=-1,startY=-1;
 	JLabel tip=new JLabel();
@@ -39,6 +39,7 @@ public class TipModal  implements Runnable{
 	
 	@Override
 	public void run() {
+		tip.setVisible(true);
 		long sign=0;//System.currentTimeMillis();
 		System.out.println("["+sign+"]New Thread Start...");
 		recognize();
@@ -48,12 +49,12 @@ public class TipModal  implements Runnable{
 	void recognize() {//轨迹识别
 		long start=System.currentTimeMillis();
 		try {
-		int offset=(int)(cut.getWidth()/10.0+2);//坐标偏移容错
+		int offset=(int)(cut.getWidth()/20);//坐标偏移容错
 		offset=offset>20?20:offset;
 		System.out.println("offset: "+offset+"  "+cut.getWidth());
 		double max=0;
 		int max_index=-1;//图片相似度最大的轨迹索引
-		int interval=MouseTrack.INTERVAL;
+		int interval=MouseTrack.INTERVAL,min_mistake=MAX_MISTAKE_TIMES;
 		for(int i=0;i<tracks.length();i++) {
 				JSONObject obj=tracks.getJSONObject(i);
 				JSONArray ts=obj.getJSONArray("direction");
@@ -102,17 +103,19 @@ public class TipModal  implements Runnable{
 			}
 				System.out.println(i+" ) Mistake: "+mistake_times);
 				if(mistake_times>MAX_MISTAKE_TIMES)continue;
-				if(ts_i==ts.length()) {//手势运动方向吻合，判断图片相似度
+				if(ts_i>=ts.length()) {//手势运动方向吻合，判断图片相似度
 					double tmp=new FingerPrint(cut).compare(trackImages[i]);
-					if(tmp>max) {
+					if(min_mistake>mistake_times&&tmp>max) {//以手势匹配优先，再看图片相似度
 						max=tmp;
 						max_index=i;
+						min_mistake=mistake_times;
 					}
-					
+					System.out.println(i+" ) Similar: "+tmp);
 				}
 				
 		}
-		if(max_index>=0&&max>=0.8) {//有匹配的轨迹
+		System.out.println(max_index+" ) Similar: "+max);
+		if(max_index>=0&&max>=0.75) {//有匹配的轨迹
 			tip.setVisible(true);
 			JSONObject obj=tracks.getJSONObject(max_index);
 			tip.setIcon(new ImageIcon(drawTip(obj.getString("description"))));
