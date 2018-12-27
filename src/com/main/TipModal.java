@@ -73,12 +73,13 @@ public class TipModal  implements Runnable{
 					int ox=nx-lx>offset?1:nx-lx<=-offset?-1:0
 							,oy=ny-ly>offset?1:ny-ly<=-offset?-1:0;
 						String dir_res=ox+","+oy;//得到方向
-						
+				//		System.out.println(i+" ) : "+dir_res);
 						if(ts_i>=ts.length()) {//超出标准轨迹的方向数目了，允许小范围内的超出
 							if(interval--==0) {//每移动10次记录一次，不然太密集的话总是在误差范围内
 							last_res=dir_res;
 							interval=MouseTrack.INTERVAL;
 							}
+							
 							if(!last_res.equals(dir_res)) {//瞎画的时候退出
 							ts_i=0;
 							break;
@@ -90,27 +91,29 @@ public class TipModal  implements Runnable{
 						
 						if((dir_res).equals(ts.getString(ts_i))) {//运动方向与轨迹吻合
 						ts_i++;
-						last_res=dir_res;
+						
 						}else if(!last_mistake.equals(dir_res)&&mistake_times++>MAX_MISTAKE_TIMES) {//同个错误不重复计入
 							last_mistake=dir_res;
 							break;
 						}
 					}
 					last_dir=dir;
+					last_res=dir_res;
 				}else {
 					last_dir=dir;
 				}
 			}
-				System.out.println(i+" ) Mistake: "+mistake_times);
+				System.out.println(i+" ) Mistake: "+mistake_times+" ) ts_i:"+ts_i+" _ "+ts.length());
 				if(mistake_times>MAX_MISTAKE_TIMES)continue;
 				if(ts_i>=ts.length()) {//手势运动方向吻合，判断图片相似度
+					
 					double tmp=new FingerPrint(cut).compare(trackImages[i]);
 					if(min_mistake>mistake_times&&tmp>max) {//以手势匹配优先，再看图片相似度
 						max=tmp;
 						max_index=i;
 						min_mistake=mistake_times;
 					}
-					System.out.println(i+" ) Similar: "+tmp);
+					System.out.println(i+" ) Similar: "+tmp+" ) Min_Mistake: "+min_mistake+" ) Max: "+max);
 				}
 				
 		}

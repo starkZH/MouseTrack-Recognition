@@ -155,6 +155,15 @@ public class MouseTrack extends JWindow{//ÕıÊ½Ê±¸ÄÎªjwindow£¬ÒòÎª¼üÅÌ¿ÉÒÔ´©Í¸´Ë´
 				hideFrame();
 				tm.tip.setVisible(false);
 				Function.exec(tm.func);
+				
+				try {
+					Thread.sleep(1500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				showFrame();
+				
 			}
 			
 		});
